@@ -9,10 +9,10 @@
 import Foundation
 
 import PerfectLib
+import MongoDB
 
 // GLOBAL for tests
 var todosJson: [[String:Any]] = [ [ "id":1, "content":"Buy food" ], [ "id":2, "content":"Go home" ], [ "id":3, "content":"Eat" ] ]
-
 
 //public method that is being called by the server framework to initialise your module.
 public func PerfectServerModuleInit() {
@@ -33,6 +33,26 @@ public func PerfectServerModuleInit() {
     
     // Check the console to see the logical structure of what was installed.
     print("\(Routing.Routes.description)")
+    
+    do{
+        var mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
+        var todoDB = mongoClient.getDatabase("todoswift")
+        var todosCollection = todoDB.getCollection("todos")
+    }catch{
+        print("Error MongoDB")
+    }
+    
+    /* MongoDB checks
+    let status = mongoClient.serverStatus()
+    switch status {
+    case .Error(let domain, let code, let message):
+        print("Error: \(domain) \(code) \(message)")
+    case .ReplyDoc(let doc):
+        print("Status doc: \(doc)")
+    default:
+        print("Strange reply type \(status)")
+    }
+    */
 }
 
 //Create a handler for index Route
@@ -49,12 +69,31 @@ class TodosHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         
         do{
-            let jsonEncoded = try todosJson.jsonEncodedString()
+            //let jsonEncoded = try todosJson.jsonEncodedString()
+            //var todosJson2 = [String]()
             
+            // Conect
+            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
+            let todoDB = mongoClient.getDatabase("todoswift")
+            let todosCollection = todoDB.getCollection("todos")
+            
+            var mongoTodos = try todosCollection.find(BSON(json:"{}"))
+            var todo = mongoTodos!.next()
+            var todosJson2 = [BSON]()
+            while todo != nil{
+                //print(todo)
+                todosJson2.append( todo! )
+                todo = mongoTodos!.next()
+            }
+            
+            let jsonEncoded = todosJson2.description
             response.appendBodyString(jsonEncoded)
             response.requestCompletedCallback()
             
         }catch _ {
+            response.appendBodyString("[]")
+            response.requestCompletedCallback()
+            
             print("Error")
         }
         
@@ -67,25 +106,31 @@ class TodoHandler: RequestHandler {
     func handleRequest(request: WebRequest, response: WebResponse) {
         
         
-        let tid = Int( request.urlVariables["id"]! )
-        var rTodo: [String:Any] = ["error":1]
-        
-        for i in todosJson{
-            let aid = i["id"] as! Int!
-            
-            if tid == aid{
-                rTodo = i
-                break
-            }
-        }
+        let tid = request.urlVariables["id"]!
         
         do{
-            let jsonEncoded = try rTodo.jsonEncodedString()
+            // Conect
+            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
+            let todoDB = mongoClient.getDatabase("todoswift")
+            let todosCollection = todoDB.getCollection("todos")
             
+            var mongoTodos = try todosCollection.find(BSON(json:"{\"_id\":{ \"$oid\" : \"\(tid)\" }}"))
+            var todo = mongoTodos!.next()
+            var todosJson2 = [BSON]()
+            while todo != nil{
+                print(todo)
+                todosJson2.append( todo! )
+                todo = mongoTodos!.next()
+            }
+            
+            let jsonEncoded = todosJson2.description
             response.appendBodyString(jsonEncoded)
             response.requestCompletedCallback()
             
         }catch _ {
+            response.appendBodyString("[]")
+            response.requestCompletedCallback()
+            
             print("Error")
         }
     }
@@ -100,25 +145,29 @@ class TodoNewHandler: RequestHandler {
 
         var newTodo: [String:Any]
         
-        
-        var lastId = 0
-        if todosJson.count > 0
-        {
-            lastId = todosJson.last!["id"] as! Int
-        }
-        
-        let newId = lastId + 1
-        
-        newTodo = ["id":newId, "content": newTodoContent]
+        newTodo = ["content": newTodoContent]
         todosJson.append(newTodo)
+        
         
         do{
             let jsonEncoded = try newTodo.jsonEncodedString()
+            
+            // Conect
+            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
+            let todoDB = mongoClient.getDatabase("todoswift")
+            let todosCollection = todoDB.getCollection("todos")
+            
+            // Save
+            let bson = try BSON(json:jsonEncoded)
+            todosCollection.save(bson)
             
             response.appendBodyString(jsonEncoded)
             response.requestCompletedCallback()
             
         }catch _ {
+            response.appendBodyString("[]")
+            response.requestCompletedCallback()
+            
             print("Error")
         }
     }
@@ -129,29 +178,24 @@ class TodoDeleteHandler: RequestHandler {
     
     func handleRequest(request: WebRequest, response: WebResponse) {
         
-        let tid = Int( request.urlVariables["id"]! )
+        let tid = request.urlVariables["id"]!
         var rTodo: [String:Any] = ["error":1]
         
-        var k = 0
-        for i in todosJson{
-            print(i["id"])
-            let aid = i["id"] as! Int!
-            
-            if tid == aid{
-                rTodo = i
-                todosJson.removeAtIndex(k)
-                break
-            }
-            k = k + 1
-        }
-        
         do{
-            let jsonEncoded = try rTodo.jsonEncodedString()
+            // Conect
+            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
+            let todoDB = mongoClient.getDatabase("todoswift")
+            let todosCollection = todoDB.getCollection("todos")
             
-            response.appendBodyString(jsonEncoded)
+            var mongoTodos = try todosCollection.remove(BSON(json: "{\"_id\":{ \"$oid\" : \"\(tid)\" }}"))
+            
+            response.appendBodyString("{\"success\":true}")
             response.requestCompletedCallback()
             
         }catch _ {
+            response.appendBodyString("{\"success\":false}")
+            response.requestCompletedCallback()
+            
             print("Error")
         }
         

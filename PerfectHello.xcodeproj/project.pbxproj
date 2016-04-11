@@ -12,6 +12,7 @@
 		D361C4C31CBA6F1E00D1A9F1 /* PerfectHelloTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D361C4C21CBA6F1E00D1A9F1 /* PerfectHelloTests.swift */; };
 		D361C4D21CBA700700D1A9F1 /* PerfectHandlers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D361C4D11CBA700700D1A9F1 /* PerfectHandlers.swift */; };
 		D361C4D41CBA704A00D1A9F1 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D361C4D31CBA704A00D1A9F1 /* PerfectLib.framework */; };
+		D36288221CBB9B3900CC99DF /* MongoDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36288211CBB9B3900CC99DF /* MongoDB.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		D361C4C41CBA6F1E00D1A9F1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D361C4D11CBA700700D1A9F1 /* PerfectHandlers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerfectHandlers.swift; sourceTree = "<group>"; };
 		D361C4D31CBA704A00D1A9F1 /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../../../Library/Developer/Xcode/DerivedData/PerfectHelloWorld-gmwprtpafbdkwbdmpantbsiwaood/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<group>"; };
+		D36288211CBB9B3900CC99DF /* MongoDB.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MongoDB.framework; path = "../../../../Library/Developer/Xcode/DerivedData/PerfectHelloWorld-gmwprtpafbdkwbdmpantbsiwaood/Build/Products/Debug/MongoDB.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D36288221CBB9B3900CC99DF /* MongoDB.framework in Frameworks */,
 				D361C4D41CBA704A00D1A9F1 /* PerfectLib.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -58,6 +61,7 @@
 		D361C4A91CBA6F1E00D1A9F1 = {
 			isa = PBXGroup;
 			children = (
+				D36288211CBB9B3900CC99DF /* MongoDB.framework */,
 				D361C4D31CBA704A00D1A9F1 /* PerfectLib.framework */,
 				D361C4B51CBA6F1E00D1A9F1 /* PerfectHello */,
 				D361C4C11CBA6F1E00D1A9F1 /* PerfectHelloTests */,
@@ -396,6 +400,7 @@
 				D361C4C91CBA6F1E00D1A9F1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D361C4CA1CBA6F1E00D1A9F1 /* Build configuration list for PBXNativeTarget "PerfectHelloTests" */ = {
 			isa = XCConfigurationList;
@@ -404,6 +409,7 @@
 				D361C4CC1CBA6F1E00D1A9F1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
