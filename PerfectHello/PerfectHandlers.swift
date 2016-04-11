@@ -11,8 +11,9 @@ import Foundation
 import PerfectLib
 import MongoDB
 
-// GLOBAL for tests
-var todosJson: [[String:Any]] = [ [ "id":1, "content":"Buy food" ], [ "id":2, "content":"Go home" ], [ "id":3, "content":"Eat" ] ]
+let MONGODB_URL = "mongodb://localhost:27017"
+let DB_NAME = "todoswift"
+let COLLECTION_NAME = "todos"
 
 //public method that is being called by the server framework to initialise your module.
 public func PerfectServerModuleInit() {
@@ -35,9 +36,9 @@ public func PerfectServerModuleInit() {
     print("\(Routing.Routes.description)")
     
     do{
-        var mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
-        var todoDB = mongoClient.getDatabase("todoswift")
-        var todosCollection = todoDB.getCollection("todos")
+        var mongoClient = try MongoClient(uri: MONGODB_URL)
+        var todoDB = mongoClient.getDatabase(DB_NAME)
+        var todosCollection = todoDB.getCollection(COLLECTION_NAME)
     }catch{
         print("Error MongoDB")
     }
@@ -73,16 +74,16 @@ class TodosHandler: RequestHandler {
             //var todosJson2 = [String]()
             
             // Conect
-            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
-            let todoDB = mongoClient.getDatabase("todoswift")
-            let todosCollection = todoDB.getCollection("todos")
+            var mongoClient = try MongoClient(uri: MONGODB_URL)
+            var todoDB = mongoClient.getDatabase(DB_NAME)
+            var todosCollection = todoDB.getCollection(COLLECTION_NAME)
             
             var mongoTodos = try todosCollection.find(BSON(json:"{}"))
             var todo = mongoTodos!.next()
             var todosJson2 = [BSON]()
             while todo != nil{
-                //print(todo)
-                todosJson2.append( todo! )
+                print(todo)
+                todosJson2.append( BSON(document:todo!) )
                 todo = mongoTodos!.next()
             }
             
@@ -110,15 +111,15 @@ class TodoHandler: RequestHandler {
         
         do{
             // Conect
-            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
-            let todoDB = mongoClient.getDatabase("todoswift")
-            let todosCollection = todoDB.getCollection("todos")
+            var mongoClient = try MongoClient(uri: MONGODB_URL)
+            var todoDB = mongoClient.getDatabase(DB_NAME)
+            var todosCollection = todoDB.getCollection(COLLECTION_NAME)
             
             var mongoTodos = try todosCollection.find(BSON(json:"{\"_id\":{ \"$oid\" : \"\(tid)\" }}"))
             var todo = mongoTodos!.next()
             var todosJson2 = [BSON]()
             while todo != nil{
-                print(todo)
+                //print(todo)
                 todosJson2.append( todo! )
                 todo = mongoTodos!.next()
             }
@@ -146,22 +147,20 @@ class TodoNewHandler: RequestHandler {
         var newTodo: [String:Any]
         
         newTodo = ["content": newTodoContent]
-        todosJson.append(newTodo)
-        
         
         do{
             let jsonEncoded = try newTodo.jsonEncodedString()
             
             // Conect
-            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
-            let todoDB = mongoClient.getDatabase("todoswift")
-            let todosCollection = todoDB.getCollection("todos")
+            var mongoClient = try MongoClient(uri: MONGODB_URL)
+            var todoDB = mongoClient.getDatabase(DB_NAME)
+            var todosCollection = todoDB.getCollection(COLLECTION_NAME)
             
             // Save
             let bson = try BSON(json:jsonEncoded)
             todosCollection.save(bson)
             
-            response.appendBodyString(jsonEncoded)
+            response.appendBodyString(bson.asString)
             response.requestCompletedCallback()
             
         }catch _ {
@@ -183,9 +182,9 @@ class TodoDeleteHandler: RequestHandler {
         
         do{
             // Conect
-            let mongoClient = try MongoClient(uri: "mongodb://localhost:27017")
-            let todoDB = mongoClient.getDatabase("todoswift")
-            let todosCollection = todoDB.getCollection("todos")
+            var mongoClient = try MongoClient(uri: MONGODB_URL)
+            var todoDB = mongoClient.getDatabase(DB_NAME)
+            var todosCollection = todoDB.getCollection(COLLECTION_NAME)
             
             var mongoTodos = try todosCollection.remove(BSON(json: "{\"_id\":{ \"$oid\" : \"\(tid)\" }}"))
             
